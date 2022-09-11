@@ -13,3 +13,26 @@ const resolvers = {
         },
     },
 
+    Mutation: {
+        addUser: async (parent, args) => {
+          const user = await User.create(args);
+          const token = signToken(user);
+          return { token, user };
+        },
+        login: async (parent, { email, password }) => {
+          const user = await User.findOne({ email });
+    
+          if (!user) {
+            throw new AuthenticationError('User Not found');
+          }
+    
+          const correctPw = await user.isCorrectPassword(password);
+
+          if(!correctPw) {
+              throw new AuthenticationError('Incorrect password');
+          }
+
+          const token = signToken(user);
+          return {token, user};
+  
+      },
